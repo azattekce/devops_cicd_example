@@ -17,3 +17,5 @@ pytest
 ## CI/CD
 
 Pipeline, `.gitlab-ci.yml` dosyasındaki adımları takip ederek testleri otomatik olarak çalıştırır.
+
+![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)
