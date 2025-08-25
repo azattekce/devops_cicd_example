@@ -1,0 +1,8 @@
+- [x] Proje gereksinimleri netleştirildi: Basit Python projesi ve GitLab CI/CD pipeline.
+- [x] Proje dosyaları oluşturuldu: main.py, requirements.txt, test_main.py, .gitlab-ci.yml, README.md.
+- [ ] Proje özelleştirmesi: Gerekli dosyalar ve örnek kod eklendi.
+- [ ] Gerekli uzantı yok.
+- [ ] Proje derlemesi ve testler çalıştırılacak.
+- [ ] Task oluşturulması gerekmiyor.
+- [ ] Proje başlatma: Kullanıcı isterse debug veya çalıştırma yapılabilir.
+- [ ] Dokümantasyon tamamlanacak ve güncellenecek.
