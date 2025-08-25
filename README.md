@@ -18,4 +18,4 @@ pytest
 
 Pipeline, `.gitlab-ci.yml` dosyasındaki adımları takip ederek testleri otomatik olarak çalıştırır.
 
-![CI](https://github.com/<OWNER>/<REPO>/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/azattekce/devops_cicd_example/actions/workflows/ci.yml/badge.svg)
