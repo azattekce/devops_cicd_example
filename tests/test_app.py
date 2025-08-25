@@ -1,6 +1,11 @@
-import main
+from fastapi.testclient import TestClient
+from src.app import app
 
-def test_hello(capsys):
-    main.hello()
-    captured = capsys.readouterr()
-    assert "Hello, GitLab CI/CD!" in captured.out
+client = TestClient(app)
+
+def test_read_root():
+	response = client.get("/")
+	assert response.status_code == 200
+	assert response.json() == {"message": "Hello, FastAPI & GitLab CI/CD!"}
+
+
