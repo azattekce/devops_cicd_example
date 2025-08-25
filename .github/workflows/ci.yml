@@ -8,29 +8,37 @@ permissions:
   contents: read
 
 jobs:
+
   build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install build deps
+        run: |
+          pip install -r requirements.txt
+          python -V
 
   test-and-analyze:
     runs-on: ubuntu-latest
+    needs: build
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Sonar öneriyor; blame/PR raporlaması için önemli
-
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
       - name: Install deps
         run: |
           pip install -r requirements.txt
           pip install pytest coverage
-
       - name: Run tests & coverage
         run: |
           coverage run -m pytest
           coverage xml  # ./coverage.xml oluşur
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
@@ -39,17 +47,28 @@ jobs:
         with:
           args: >
             -Dsonar.qualitygate.wait=true
+
+  docker:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    needs: test-and-analyze
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
         with:
-          python-version: "3.11"
-
-      - name: Install deps
-        run: |
-          python -V
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
   deploy_staging:
     environment:
@@ -64,57 +83,6 @@ jobs:
         run: |
           echo "kubectl apply -f k8s/      # gerçek komutlarını ekle"
           pip install -r requirements.txt
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install test deps
-        run: |
-          pip install -r requirements.txt
-          pip install pytest coverage
-
-      - name: Run tests with coverage
-        run: |
-          coverage run -m pytest --junitxml=junit.xml
-          coverage xml
-
-      - name: Upload test reports
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-reports
-          path: |
-            junit.xml
-            coverage.xml
-
-  docker:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs: test
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Build and push
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ghcr.io/${{ github.repository }}:${{ github.sha }}
 
   
   
