@@ -9,6 +9,36 @@ permissions:
 
 jobs:
   build:
+
+  test-and-analyze:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Sonar öneriyor; blame/PR raporlaması için önemli
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt
+          pip install pytest coverage
+
+      - name: Run tests & coverage
+        run: |
+          coverage run -m pytest
+          coverage xml  # ./coverage.xml oluşur
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}     # SonarCloud token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   # GH tarafından otomatik verilir
+        with:
+          args: >
+            -Dsonar.qualitygate.wait=true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
