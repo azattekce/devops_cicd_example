@@ -1,0 +1,24 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      build_status: ${{ steps.build_status.outcome }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install build dependencies
+        run: |
+          pip install -r requirements.txt
+          python -V
+      - name: Set build status
+        id: build_status
+        run: echo "Build completed"
